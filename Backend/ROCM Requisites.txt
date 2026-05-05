@@ -1,0 +1,11 @@
+docker run -it \
+   --network=host \
+   --group-add=video \
+   --ipc=host \
+   --cap-add=SYS_PTRACE \
+   --security-opt seccomp=unconfined \
+   --device /dev/kfd \
+   --device /dev/dri \
+   -v /path/to/your/huggingface/cache:/root/.cache/huggingface \
+   -v $(pwd):/app \
+   rocm/vllm-dev:latest

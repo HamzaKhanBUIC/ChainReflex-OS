@@ -1,0 +1,17 @@
+# Python ignores
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+.venv/
+env.bak/
+venv.bak/
+
+# Frontend ignores
+node_modules/
+.next/
+.env*.local
+.DS_Store
