@@ -44,7 +44,9 @@ async def trigger_autonomous_response(trigger: ThreatTrigger):
     if trigger.threat_vector == "cyber":
         initial_state["log_data"] = trigger.payload_data
     elif trigger.threat_vector == "voice":
-        initial_state["audio_path"] = trigger.payload_data
+        initial_state["audio_path"] = "panic_voicemail.wav"
+    elif trigger.threat_vector == "vision":
+        initial_state["log_data"] = "WARNING: SATELLITE FEED DETECTS PORT FLOODING IN SECTOR 7"
 
     try:
         final_state = langgraph_app.invoke(initial_state)
