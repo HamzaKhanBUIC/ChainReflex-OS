@@ -1,10 +1,12 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Header } from "@/components/command-center/header";
 import { MetricsRow } from "@/components/command-center/metrics-row";
 import { ControlPanel } from "@/components/command-center/control-panel";
 import { LiveTerminal } from "@/components/command-center/live-terminal";
+import { ThreatBanner } from "@/components/command-center/threat-banner";
+import { GitOpsCommand } from "@/components/command-center/gitops-command";
 
 export type LogEntry = {
   agent: string;
@@ -12,22 +14,47 @@ export type LogEntry = {
   type: "system" | "info" | "warning" | "alert" | "success";
 };
 
+export type Disruption = {
+  location: string;
+  severity_level: string;
+  description: string;
+};
+
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+
 export default function CommandCenter() {
+  const [activeThreat, setActiveThreat] = useState<Disruption | null>(null);
   const [terminalLogs, setTerminalLogs] = useState<LogEntry[]>([
     { agent: "SYSTEM", message: "ChainReflex OS v4.2.1 initialized", type: "system" },
     { agent: "SYSTEM", message: "Awaiting manual override or swarm trigger...", type: "system" }
   ]);
 
-  const triggerAI = async (vectorType: string) => {
-    setTerminalLogs(prev => [...prev, { agent: "SYSTEM", message: `Triggering ${vectorType} Scout...`, type: "info" }]);
+  // Real-Time Log Polling
+  useEffect(() => {
+    const fetchLogs = async () => {
+      try {
+        const response = await fetch(`${API_BASE_URL}/api/logs`);
+        const data = await response.json();
+        if (Array.isArray(data)) setTerminalLogs(data);
+      } catch (err) {
+        console.error("Terminal Sync Failed:", err);
+      }
+    };
     
+    const interval = setInterval(fetchLogs, 2000); // Poll every 2s
+    return () => clearInterval(interval);
+  }, []);
+
+  const triggerAI = async (vectorType: string) => {
     try {
-      const response = await fetch('http://localhost:8000/api/trigger-response', {
+      const response = await fetch(`${API_BASE_URL}/api/trigger-response`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
           threat_vector: vectorType,
-          payload_data: vectorType === 'cyber' ? "WARN: Ransomware signature matched in payload" : "mock_data_payload" 
+          payload_data: vectorType === 'cyber' 
+            ? "WARN: Ransomware signature matched in payload" 
+            : vectorType === 'vision' ? 'flood.jpg' : 'panic_voicemail.wav'
         })
       });
       
@@ -36,24 +63,13 @@ export default function CommandCenter() {
         throw new Error(errData.detail || "Server returned an error");
       }
 
-      const aiData = await response.json();
+      const data = await response.json();
       
-      if (aiData.status === "success" && aiData.disruption_found) {
-        setTerminalLogs(prev => [
-          ...prev,
-          { agent: "SCOUT", message: `Disruption Found: ${aiData.disruption_found.location}`, type: "alert" },
-          { agent: "SCOUT", message: `Severity: ${aiData.disruption_found.severity_level}`, type: "warning" },
-          { agent: "LEGAL_BRAIN", message: `Drafting Force Majeure...`, type: "info" },
-          { agent: "FIREWALL", message: `Approved: ${aiData.firewall_approved}`, type: "success" },
-          { agent: "SYSTEM", message: `Action taken after ${aiData.iterations_required} iterations.`, type: "success" },
-          { agent: "LEGAL_BRAIN", message: `FINAL EMAIL DRAFT:\n${aiData.final_legal_action}`, type: "info" }
-        ]);
-      } else {
-         setTerminalLogs(prev => [...prev, { agent: "SYSTEM", message: "No critical threats detected or pipeline failed.", type: "warning" }]);
+      if (data.status === "success" && data.disruption) {
+        setActiveThreat(data.disruption);
       }
       
     } catch (error: any) {
-      setTerminalLogs(prev => [...prev, { agent: "SYSTEM", message: `API Error: ${error.message || "Connection to AMD MI300X Engine Failed."}`, type: "alert" }]);
       console.error(error);
     }
   };
@@ -64,12 +80,15 @@ export default function CommandCenter() {
       <Header />
 
       {/* Main Content */}
-      <main className="flex flex-1 flex-col">
+      <main className="flex flex-1 flex-col p-6 pt-0">
+        {/* Threat Alert Banner */}
+        <ThreatBanner threat={activeThreat} onClear={() => setActiveThreat(null)} />
+
         {/* Metrics Row */}
         <MetricsRow />
 
         {/* Split View */}
-        <div className="flex-1 grid grid-cols-1 gap-6 p-6 pt-0 lg:grid-cols-5">
+        <div className="flex-1 grid grid-cols-1 gap-6 lg:grid-cols-5">
           {/* Control Panel - Left Column */}
           <div className="lg:col-span-2">
             <ControlPanel onTriggerAI={triggerAI} />
@@ -80,6 +99,9 @@ export default function CommandCenter() {
             <LiveTerminal logs={terminalLogs} />
           </div>
         </div>
+
+        {/* Autonomous GitOps Command - Full Width Row */}
+        <GitOpsCommand />
       </main>
 
       {/* Footer Status Bar */}

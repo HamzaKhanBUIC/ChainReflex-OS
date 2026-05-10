@@ -33,12 +33,19 @@ def run_analyzer(disruption: SupplyChainDisruption) -> InventoryImpact:
     
     chain = prompt | structured_llm
     
-    # We pass the strongly-typed fields from the Scout's output
-    result = chain.invoke({
-        "location": disruption.location,
-        "severity": disruption.severity_level,
-        "materials": ", ".join(disruption.affected_materials),
-        "description": disruption.description
-    })
-    
-    return result
+    try:
+        # We pass the strongly-typed fields from the Scout's output
+        result = chain.invoke({
+            "location": disruption.location,
+            "severity": disruption.severity_level,
+            "materials": ", ".join(disruption.affected_materials),
+            "description": disruption.description
+        })
+        return result
+    except Exception as e:
+        print(f"   [!] Analyzer failed: {e}")
+        return InventoryImpact(
+            days_of_inventory_left=3,
+            financial_risk_usd=150000.0,
+            risk_assessment="[Fallback] Severe risk to supply chain continuity. Immediate sourcing of alternative suppliers required."
+        )

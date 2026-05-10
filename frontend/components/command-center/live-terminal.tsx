@@ -71,7 +71,7 @@ export function LiveTerminal({ logs }: { logs: LogEntry[] }) {
                 [{log.agent}]
               </span>
               <span
-                className="terminal-text"
+                className="terminal-text whitespace-pre-wrap"
                 style={{ color: typeColors[log.type] }}
               >
                 {log.message}

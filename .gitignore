@@ -10,8 +10,15 @@ venv/
 env.bak/
 venv.bak/
 
+# Environment and Secrets
+.env
+.env.*
+!.env.example
+secrets.json
+
 # Frontend ignores
 node_modules/
 .next/
-.env*.local
 .DS_Store
+dist/
+build/

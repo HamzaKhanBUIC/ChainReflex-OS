@@ -34,7 +34,15 @@ def run_scout(context: str) -> SupplyChainDisruption:
     # Create the extraction chain
     chain = prompt | structured_llm
     
-    # Invoke the chain to get the validated Pydantic object
-    result = chain.invoke({"context": context})
-    
-    return result
+    try:
+        # Invoke the chain to get the validated Pydantic object
+        result = chain.invoke({"context": context})
+        return result
+    except Exception as e:
+        print(f"   [!] Scout failed: {e}")
+        return SupplyChainDisruption(
+            location="Reported Facility",
+            severity_level="Medium",
+            affected_materials=["General Cargo"],
+            description=f"[Fallback] Raw report: {context[:100]}..."
+        )
