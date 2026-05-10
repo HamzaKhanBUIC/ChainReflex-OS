@@ -1,6 +1,12 @@
 # 🛡️ CHAINREFLEX-OS
+
+<p align="center">
+  <img src="./logo.jpg" alt="ChainReflex OS Logo" width="800"/>
+</p>
+
 ### **BARE-METAL OS FOR AUTONOMOUS SUPPLY CHAIN DEFENSE**
 > **SYSTEM STATUS:** [🟢 ONLINE] | **KERNEL:** AMD ROCm 6.2 | **COMPUTE:** 1x AMD MI300X (192GB HBM3)
+
 
 ---
 
