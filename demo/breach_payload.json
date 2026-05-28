@@ -1,0 +1,4 @@
+{
+    "vector": "cyber",
+    "logs": "2026-05-28T08:41:00Z WARN: Ransomware signature matched in payload. 10.0.0.5 attempting massive data exfiltration of user records. Multiple Unauthorized Access attempts from unknown IP."
+}

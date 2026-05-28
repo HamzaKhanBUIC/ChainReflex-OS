@@ -1,0 +1,17 @@
+{
+    "audio_path": null,
+    "log_data": "2026-05-28T08:41:00Z WARN: Ransomware signature matched in payload. 10.0.0.5 attempting massive data exfiltration of user records. Multiple Unauthorized Access attempts from unknown IP.",
+    "image_path": null,
+    "disruption_data": {
+        "location": "Digital Infrastructure / Supplier VPN",
+        "severity_level": "Critical",
+        "affected_materials": [
+            "API Connections",
+            "Automated Scheduling"
+        ],
+        "description": "Active Ransomware signature detected in supplier's outbound traffic. Immediate digital isolation recommended."
+    },
+    "drafted_legal_notice": "Subject: URGENT Notice regarding Digital Infrastructure / Supplier VPN\nDue to the recent ['API Connections', 'Automated Scheduling'] incident, we are requesting an immediate review of routing protocols.",
+    "is_compliant": true,
+    "iteration_count": 2
+}
