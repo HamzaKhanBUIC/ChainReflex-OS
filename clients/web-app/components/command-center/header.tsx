@@ -10,9 +10,9 @@ export function Header() {
         <div className="flex items-center gap-4">
           <div className="relative">
             <div className="flex items-center gap-3">
-              <div className="relative">
-                <Shield className="h-8 w-8 text-[#00ff88]" />
-                <div className="absolute inset-0 animate-pulse-glow rounded-full" />
+              <div className="relative h-10 w-10 overflow-hidden rounded-md border border-[#1f1f1f]">
+                <img src="/logo.jpg" alt="ChainReflex OS Logo" className="h-full w-full object-cover" />
+                <div className="absolute inset-0 animate-pulse-glow rounded-md" />
               </div>
               <div>
                 <h1 className="text-xl font-bold tracking-tight text-[#e0e0e0]">

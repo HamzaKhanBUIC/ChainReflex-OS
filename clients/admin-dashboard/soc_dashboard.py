@@ -62,8 +62,12 @@ with st.sidebar:
 FASTAPI_WEBHOOK_URL = f"{api_host}/api/remediate"
 
 # --- UI Layout ---
-st.title("🛡️ AutoRem // Threat Mitigation Terminal")
-st.markdown("### Powered by AMD Instinct MI300X & Qwen 2.5 Coder")
+col_logo, col_title = st.columns([1, 10])
+with col_logo:
+    st.image("logo.jpg", use_container_width=True)
+with col_title:
+    st.title("🛡️ AutoRem // Threat Mitigation Terminal")
+    st.markdown("### Powered by AMD Instinct MI300X & Qwen 2.5 Coder")
 st.markdown("---")
 
 col1, col2 = st.columns([1, 2])
