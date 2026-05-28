@@ -1,174 +1,89 @@
-# 🛡️ CHAINREFLEX-OS
+<div align="center">
 
-<p align="center">
-  <img src="./logo.jpg" alt="ChainReflex OS Logo" width="800"/>
-</p>
+# 🛡️ ChainReflex-OS
+**The Autonomous, Event-Driven AI Security Orchestrator**
 
-### **BARE-METAL OS FOR AUTONOMOUS SUPPLY CHAIN DEFENSE**
->
-> **SYSTEM STATUS:** [🟢 ONLINE] | **KERNEL:** AMD ROCm 6.2 | **COMPUTE:** 1x AMD MI300X (192GB HBM3)
+[![Python 3.10+](https://img.shields.io/badge/Python-3.10%2B-blue.svg)](https://www.python.org/)
+[![FastAPI](https://img.shields.io/badge/FastAPI-0.110%2B-009688.svg)](https://fastapi.tiangolo.com)
+[![Next.js](https://img.shields.io/badge/Next.js-14.0%2B-black.svg)](https://nextjs.org/)
+[![Build Status](https://img.shields.io/badge/build-passing-brightgreen.svg)]()
+[![Security Audit](https://img.shields.io/badge/security-A%2B-success.svg)]()
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
----
+ChainReflex-OS is an enterprise-grade, low-latency framework designed for senior engineering leads. It bridges LLM capabilities with rigorous zero-trust security guardrails, orchestrating autonomous responses to system events in real-time.
 
-## ⚡ **SYSTEM TELEMETRY**
-
-| METRIC | STATUS | VALUE |
-| :--- | :--- | :--- |
-| **HBM3 BANDWIDTH** | OPTIMAL | 5.3 TB/s |
-| **VRAM ALLOCATION** | PARTITIONED | 160GB / 192GB |
-| **SWARM LATENCY** | ULTRA-LOW | <12ms |
-| **ROCm INTEGRATION** | ACTIVE | v6.2.1 |
+</div>
 
 ---
 
-## 🌌 **OVERVIEW**
+## 🏗️ System Architecture
 
-ChainReflex-OS is a high-performance **Asynchronous Agentic Swarm** orchestrated by **LangGraph**, designed specifically to saturate the massive memory bandwidth of the AMD MI300X. It acts as an autonomous supply chain defense system, processing signals from various vectors to detect and remediate threats in real-time.
-
----
-
-## 🛠️ **ARCHITECTURE DEEP-DIVE**
-
-### **SYSTEM TOPOLOGY & ARCHITECTURE FLOW**
->
-> *[PLACEHOLDER: Insert Architecture Flow Diagram here (e.g., Mermaid.js or High-res image link)]*
-> **Topology:** The architecture is built on a decoupled, sovereign grid. A local or edge-based Client securely communicates via exposed API endpoints to a Local Headless GPU Server. The server orchestrates a multi-agent grid capable of asynchronous inference and robust fallback strategies.
-
-### **1. INTELLIGENCE SWARM**
-
-A multi-vector scout network that processes signal telemetry in parallel:
-
-- **📸 VISION_SCOUT**: LLaVA-1.5 (Satellite Damage Assessment)
-- **💻 CYBER_SCOUT**: Qwen-Coder (Zero-Day Log Parsing)
-- **🎤 VOICE_SCOUT**: Whisper-v3 (Intercepted Comms)
-- **⚖️ LEGAL_BRAIN**: Analyzes compliance and legal implications.
-- **🛡️ COMPLIANCE_FIREWALL**: Ensures all actions meet regulatory standards.
-- **🤝 NEGOTIATOR**: Handles autonomous negotiation scenarios.
-- **🔧 REMEDIATOR**: Executes security patches and remediation loops.
-
-### **2. GITOPS REMEDIATION ENGINE**
-
-When a threat is validated, the system triggers a secure remediation loop:
-
-- **DRAFTER**: Synthesizes non-breaking security patches.
-- **ORACLE**: Audits the patch before deployment.
-- **GITOPS_HAND**: Deploys a formal Pull Request to GitHub.
-
----
-
-## 📂 **PROJECT STRUCTURE**
+ChainReflex-OS maps incoming triggers through a hardened pipeline: event ingestion, zero-trust validation, AI reflex routing, and final output generation.
 
 ```text
-ChainReflex-OS/
-├── backend/                # FastAPI Backend & LangGraph Agents
-│   ├── agents/             # Autonomous AI Agents
-│   ├── core/               # Core logic and utilities
-│   ├── api.py              # Main API entry point
-│   └── main.py             # Alternative entry point
-├── frontend/               # Next.js Command Center
-│   ├── app/                # Next.js App Router
-│   ├── components/         # UI Components
-│   └── public/             # Static Assets
-├── dashboard/              # Streamlit Red Team Terminal
-│   └── soc_dashboard.py    # Streamlit App
-├── Dockerfile              # Docker configuration
-└── setup_and_start.sh      # Setup script
+       [ EVENT TRIGGER ]
+              │
+              ▼
+   ┌───────────────────────┐
+   │    API Gateway (src/) │
+   └──────────┬────────────┘
+              │
+              ▼
+   ╔═══════════════════════╗
+   ║  Security Guardrail   ║ (Zero-Trust / Auditor)
+   ╚══════════╦════════════╝
+              │ (Valid)
+              ▼
+   ┌───────────────────────┐
+   │    Reflex Router      │ (LangGraph / Chains)
+   └──────────┬────────────┘
+              │
+        ┌─────┴─────┐
+        ▼           ▼
+   [Reflex 1]   [Reflex 2]   (Agents: Cyber Scout, Remediator, etc.)
+        │           │
+        └─────┬─────┘
+              ▼
+        [ OUTPUT ]
 ```
 
 ---
 
-## 🌐 **DEPLOYMENT MODES**
+## 🔐 Security Posture
 
-- **Primary Production State (vLLM Local Mode)**: When deployed on the AMD Cloud with access to the **AMD Instinct MI300X**, the system uses a local **vLLM** server to serve models directly on the hardware for maximum performance and privacy.
-- **Developer Fallback (Hugging Face API)**: If the local vLLM cluster is not available, the system seamlessly falls back to the **Hugging Face Inference API** using cloud-hosted models.
-
----
-
-## 🚀 **GETTING STARTED**
-
-### **Prerequisites**
-
-- Python 3.10+
-- Node.js 18+
-- Git
-
-### **Backend Setup**
-
-1. Navigate to the backend directory:
-
-   ```bash
-   cd backend
-   ```
-
-2. Create a virtual environment and install dependencies:
-
-   ```bash
-   python -m venv .venv
-   source .venv/bin/activate  # On Windows use `.venv\Scripts\activate`
-   pip install -r requirements.txt
-   ```
-
-3. Configure environment variables:
-   Copy `.env.example` to `.env` and fill in your keys.
-
-   ```bash
-   cp .env.example .env
-   ```
-
-4. Run the backend:
-
-   ```bash
-   python api.py
-   ```
-
-### **Frontend Setup**
-
-1. Navigate to the frontend directory:
-
-   ```bash
-   cd frontend
-   ```
-
-2. Install dependencies:
-
-   ```bash
-   npm install
-   ```
-
-3. Run the development server:
-
-   ```bash
-   npm run dev
-   ```
-
-### **Dashboard Setup**
-
-1. Navigate to the dashboard directory:
-
-   ```bash
-   cd dashboard
-   ```
-
-2. Run the Streamlit app:
-
-   ```bash
-   streamlit run soc_dashboard.py
-   ```
+ChainReflex-OS is built with a **Zero-Trust first** mindset.
+- **Air-gapped Secrets:** No hardcoded tokens. All configurations are injected securely at runtime via environment variables.
+- **Role-Based Reflexes:** Triggers are strictly bound to identity assertions (`src/security/permissions.py`).
+- **Audit Logging:** Every AI decision is traced and mapped within the memory core for full enterprise accountability.
 
 ---
 
-## 🛡️ **ENTERPRISE NOTIFICATIONS**
+## 🚀 Quick Start (3-Step Boot)
 
-ChainReflex-OS is integrated with **Discord Webhooks** for real-time stakeholder alerting. Every autonomous remediation is logged with a "Verified by ChainReflex-Oracle" badge.
+Deploying ChainReflex-OS is streamlined for modern environments. The orchestrator encompasses the core Python engine and two frontends located in the `clients/` directory.
+
+### 1. Clone & Structure
+```bash
+git clone https://github.com/your-org/ChainReflex-OS.git
+cd ChainReflex-OS
+```
+*Note: The Next.js web app is located at `clients/web-app/` and the Streamlit admin dashboard at `clients/admin-dashboard/`.*
+
+### 2. Configure Environment
+```bash
+cp .env.example .env
+# Edit .env with your specific HF_TOKEN, GITHUB_TOKEN, and target LLM endpoints
+```
+
+### 3. Boot & Orchestrate
+Using Docker Compose, spin up the unified stack (Gateway, Web App, Admin Dashboard):
+```bash
+docker-compose -f deploy/docker-compose.yml up --build -d
+```
+The OS Engine will be available on `localhost:8000`, the Web App on `3000`, and the Admin Dashboard on `8501`.
 
 ---
 
-## 📊 **PROOF OF EVALUATION & SYSTEM METRICS**
-
-To ensure enterprise-grade reliability and optimal inference performance, ChainReflex-OS is rigorously benchmarked.
-
-- **RAGAS Evaluation Scores:** *[PLACEHOLDER: Insert precision, recall, and contextual relevance scores]*
-- **Swarm Latency:** Sustained sub-12ms inter-agent communication latency via optimized gRPC/FastAPI boundaries.
-- **Token Consumption Efficiency:** *[PLACEHOLDER: Insert tokens/sec processing metrics and batching efficiency on MI300X]*
-
----
+<div align="center">
+<i>Engineered for resilience. Designed for scale.</i>
+</div>

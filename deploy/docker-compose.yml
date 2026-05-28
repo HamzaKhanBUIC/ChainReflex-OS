@@ -1,0 +1,40 @@
+version: '3.8'
+
+services:
+  gateway:
+    build:
+      context: .
+      dockerfile: deploy/Dockerfile
+    ports:
+      - "8000:8000"
+    environment:
+      - ENV=production
+    networks:
+      - chainreflex-net
+    restart: unless-stopped
+
+  web-app:
+    build:
+      context: ./clients/web-app
+    ports:
+      - "3000:3000"
+    networks:
+      - chainreflex-net
+    depends_on:
+      - gateway
+    restart: unless-stopped
+
+  admin-dashboard:
+    build:
+      context: ./clients/admin-dashboard
+    ports:
+      - "8501:8501"
+    networks:
+      - chainreflex-net
+    depends_on:
+      - gateway
+    restart: unless-stopped
+
+networks:
+  chainreflex-net:
+    driver: bridge

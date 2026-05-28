@@ -1,0 +1,9 @@
+engine:
+  version: "1.0.0"
+  log_level: "INFO"
+  max_concurrent_reflexes: 10
+  timeout_seconds: 30
+
+security:
+  strict_mode: true
+  audit_logging: true

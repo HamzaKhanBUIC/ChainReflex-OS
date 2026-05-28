@@ -9,3 +9,13 @@ huggingface_hub
 langchain-openai
 PyGithub
 streamlit
+fastapi>=0.110.0
+uvicorn>=0.28.0
+langgraph
+pydantic
+python-dotenv
+requests
+httpx
+huggingface_hub
+langchain-openai
+PyGithub

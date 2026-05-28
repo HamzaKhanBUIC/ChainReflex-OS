@@ -1,0 +1,14 @@
+{
+  "routes": [
+    {
+      "trigger": "security_alert",
+      "reflex": "cyber_scout",
+      "priority": "high"
+    },
+    {
+      "trigger": "legal_inquiry",
+      "reflex": "legal_brain",
+      "priority": "medium"
+    }
+  ]
+}
