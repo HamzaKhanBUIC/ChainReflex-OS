@@ -62,5 +62,5 @@ def get_full_context(base_dir: str, target_file: str) -> str:
         mock_context += "Execution Path Mapped: src/auth.py -> verify_token() -> jwt.decode(verify=False)\n"
         mock_context += "Context successfully packaged for vLLM Inference."
         return mock_context
-    except:
-        return "ERROR: Simulation layer failure."
+    except Exception as e:
+        return f"ERROR: Simulation layer failure. {e}"
