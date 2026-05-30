@@ -25,7 +25,8 @@ export function GitOpsCommand() {
   useEffect(() => {
     const fetchPRs = async () => {
       try {
-        const response = await fetch("http://localhost:8000/api/remediations");
+        const apiBaseUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+        const response = await fetch(`${apiBaseUrl}/api/remediations`);
         const data = await response.json();
         if (Array.isArray(data)) setRecentPRs(data);
       } catch (err) {
