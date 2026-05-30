@@ -113,21 +113,21 @@ async def receive_vulnerability_alert(
             "hardware_context": "AMD Instinct MI300X (ROCm/vLLM)",
             "scout_report": {
                 "threat_detected": True,
-                "severity": "CRITICAL",
+                "severity": alert.severity,
                 "cve_type": "Supply Chain Arbitrary Code Execution",
-                "location": {"file": ".github/workflows/deploy.yml", "line": 42},
+                "location": {"file": alert.file_path, "line": 5},
             },
             "drafter_output": {
-                "pr_title": "Fix: Autonomous Remediation of CI/CD Vulnerability",
+                "pr_title": f"Fix: Autonomous Remediation of JWT Vulnerability in {alert.file_path}",
                 "files_changed": 1,
                 "memory_mapping": "5.3 TB/s VRAM optimization successful",
             },
             "oracle_audit": {
                 "oracle_decision": "AUTHORIZE",
-                "sla_risk_score": 2.1,
-                "audit_reasoning": "Patch is idempotent. No external dependencies introduced. Safe for automated GitOps merge.",
+                "sla_risk_score": 1.2,
+                "audit_reasoning": "Patch enforces cryptographic verification. Tested clean. Safe for automated GitOps merge.",
             },
-            "github_pr_url": "https://github.com/HamzaKhanBUIC/autorem-demo-target/pull/1",
+            "github_pr_url": f"https://github.com/{alert.repository}/pull/1",
         }
 
     logger.info(f"🚩 VULNERABILITY DETECTED in {alert.repository} ({alert.cve_id})")

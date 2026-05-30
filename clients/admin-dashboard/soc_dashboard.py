@@ -77,8 +77,8 @@ with col1:
     st.markdown("Simulate a SAST/DAST pipeline alert:")
     
     # Mock Alert Data Generator
-    repo_name = st.text_input("Target Repository", value="finance-api-v2")
-    file_path = st.text_input("Vulnerable File", value="src/auth/jwt_handler.py")
+    repo_name = st.text_input("Target Repository", value="HamzaKhanBUIC/autorem-demo-target")
+    file_path = st.text_input("Vulnerable File", value="src/auth.py")
     severity = st.selectbox("Severity Level", ["CRITICAL", "HIGH", "MEDIUM"])
     description = st.text_area("Threat Description", value="Unverified JWT decoding allows signature bypass.")
     snippet = st.text_area("Vulnerable Snippet", value="jwt.decode(token, verify=False)", height=100)
@@ -111,21 +111,35 @@ with col2:
             headers = {"X-API-Key": "chainreflex-default-key"}
             response = requests.post(FASTAPI_WEBHOOK_URL, json=payload, headers=headers)
             
-            if response.status_code == 202:
+            if response.status_code in [200, 202]:
                 # Simulate the AI streaming the diff for the hackathon UI presentation
                 agent_console.markdown("<div class='diff-box'>[SYSTEM] Core Engine Accepted Payload. Handing off to MI300X vLLM cluster...</div>", unsafe_allow_html=True)
                 time.sleep(1.5) # Simulating AI processing time
                 
                 # Mocking the returned diff for the UI typewriter effect
-                mock_diff = f"""--- a/{file_path}
+                if "jwt" in snippet.lower():
+                    mock_diff = f"""--- a/{file_path}
++++ b/{file_path}
+@@ -1,6 +1,6 @@
+ import jwt
+ import os
+ 
+ def verify_token(token: str):
+-    # Unverified decoding vulnerability
+-    return jwt.decode(token, verify=False)
++    # CRITICAL PATCH: Signature verification enforced
++    return jwt.decode(token, key=os.getenv('JWT_SECRET'), algorithms=['HS256'])
+"""
+                else:
+                    mock_diff = f"""--- a/{file_path}
 +++ b/{file_path}
 @@ -10,3 +10,4 @@
  def verify_token(token: str):
 -    # Decode token without verification for speed
--    return jwt.decode(token, verify=False)
+-    return {snippet}
 +    # CRITICAL PATCH: Cryptographic signature verification enforced
 +    # AutoRem remediation deployed
-+    return jwt.decode(token, algorithms=["HS256"], options={{"verify_signature": True}}, key=settings.SECRET_KEY)
++    return jwt.decode(token, algorithms=["HS256"], options={{"verify_signature": True}}, key=os.getenv('JWT_SECRET'))
 """
                 
                 # Typewriter matrix effect
