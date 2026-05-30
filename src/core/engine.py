@@ -1,6 +1,8 @@
 import time
 from typing import TypedDict, Dict, Any, Optional
 from langgraph.graph import StateGraph, END
+from langgraph.checkpoint.memory import MemorySaver
+import asyncio
 from src.core.telemetry import add_log
 
 # --- IMPORTS FROM YOUR MODULES ---
@@ -25,38 +27,41 @@ class ChainReflexState(TypedDict):
 # --- 2. DEFINE THE NODES (The Agents) ---
 
 
-def node_scout_swarm(state: ChainReflexState) -> Dict[str, Any]:
+async def node_scout_swarm(state: ChainReflexState) -> Dict[str, Any]:
     add_log("SCOUT", "Initializing multi-vector threat detection...", "info")
 
-    results = []
+    tasks = []
 
     # 1. Run Vision Scout
     if state.get("image_path"):
         add_log("SCOUT", "Ingesting satellite imagery...", "info")
-        vision_result = run_vision_scout(state["image_path"])
-        if vision_result:
-            results.append(vision_result)
+        tasks.append(asyncio.to_thread(run_vision_scout, state["image_path"]))
 
     # 2. Run Cyber Scout
     if state.get("log_data"):
         add_log("SCOUT", "Analyzing network traffic logs...", "info")
-        cyber_result = run_cyber_scout(state["log_data"])
-        if cyber_result:
-            results.append(cyber_result)
+        tasks.append(asyncio.to_thread(run_cyber_scout, state["log_data"]))
 
     # 3. Run Voice Scout
     if state.get("audio_path"):
         add_log("SCOUT", "Processing intercepted communications...", "info")
-        voice_result = run_voice_scout(state["audio_path"])
-        if voice_result:
-            results.append(voice_result)
+        tasks.append(asyncio.to_thread(run_voice_scout, state["audio_path"]))
 
-    if not results:
+    if not tasks:
+        add_log("SYSTEM", "Scan complete. No anomalies found.", "success")
+        return {"disruption_data": None}
+
+    # Execute all scout agents in parallel
+    results = await asyncio.gather(*tasks)
+    
+    valid_results = [r for r in results if r]
+
+    if not valid_results:
         add_log("SYSTEM", "Scan complete. No anomalies found.", "success")
         return {"disruption_data": None}
 
     severity_map = {"Critical": 4, "High": 3, "Medium": 2, "Low": 1}
-    top_disruption = max(results, key=lambda x: severity_map.get(x.severity_level, 0))
+    top_disruption = max(valid_results, key=lambda x: severity_map.get(x.severity_level, 0))
 
     add_log(
         "SCOUT",
@@ -160,10 +165,15 @@ workflow.add_conditional_edges(
     "Firewall", check_compliance, {"rewrite": "Legal", "end": END}
 )
 
-app = workflow.compile()
+memory = MemorySaver()
+app = workflow.compile(checkpointer=memory)
 
 
 async def handle_autonomous_response(vector: str, data: str):
+    import uuid
+    thread_id = str(uuid.uuid4())
+    config = {"configurable": {"thread_id": thread_id}}
+    
     initial_state = {
         "audio_path": data if vector == "voice" else None,
         "log_data": data if vector == "cyber" else None,
@@ -171,4 +181,4 @@ async def handle_autonomous_response(vector: str, data: str):
         "iteration_count": 0,
         "is_compliant": False,
     }
-    return await app.ainvoke(initial_state)
+    return await app.ainvoke(initial_state, config)
