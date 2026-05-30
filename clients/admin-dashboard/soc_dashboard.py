@@ -108,7 +108,8 @@ with col2:
         
         try:
             # Ping the FastAPI Backend
-            response = requests.post(FASTAPI_WEBHOOK_URL, json=payload)
+            headers = {"X-API-Key": "chainreflex-default-key"}
+            response = requests.post(FASTAPI_WEBHOOK_URL, json=payload, headers=headers)
             
             if response.status_code == 202:
                 # Simulate the AI streaming the diff for the hackathon UI presentation

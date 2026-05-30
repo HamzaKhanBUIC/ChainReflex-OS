@@ -29,27 +29,38 @@ export default function CommandCenter() {
     { agent: "SYSTEM", message: "Awaiting manual override or swarm trigger...", type: "system" }
   ]);
 
-  // Real-Time Log Polling
+  // Real-Time WebSocket Log Streaming
   useEffect(() => {
-    const fetchLogs = async () => {
+    // Convert HTTP URL to WS URL
+    const wsUrl = API_BASE_URL.replace(/^http/, 'ws') + '/ws/stream';
+    const ws = new WebSocket(wsUrl);
+
+    ws.onmessage = (event) => {
       try {
-        const response = await fetch(`${API_BASE_URL}/api/logs`);
-        const data = await response.json();
+        const data = JSON.parse(event.data);
         if (Array.isArray(data)) setTerminalLogs(data);
       } catch (err) {
-        console.error("Terminal Sync Failed:", err);
+        console.error("Failed to parse WebSocket message:", err);
       }
     };
-    
-    const interval = setInterval(fetchLogs, 2000); // Poll every 2s
-    return () => clearInterval(interval);
+
+    ws.onerror = (error) => {
+      console.error("WebSocket Error:", error);
+    };
+
+    return () => {
+      ws.close();
+    };
   }, []);
 
   const triggerAI = async (vectorType: string) => {
     try {
       const response = await fetch(`${API_BASE_URL}/api/trigger-response`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          'X-API-Key': 'chainreflex-default-key'
+        },
         body: JSON.stringify({ 
           threat_vector: vectorType,
           payload_data: vectorType === 'cyber' 

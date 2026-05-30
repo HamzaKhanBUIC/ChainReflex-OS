@@ -1,7 +1,8 @@
 import os
 import logging
-from fastapi import FastAPI, BackgroundTasks
+from fastapi import FastAPI, BackgroundTasks, WebSocket, WebSocketDisconnect, Security, HTTPException, Depends
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.security.api_key import APIKeyHeader
 from pydantic import BaseModel
 
 
@@ -43,9 +44,32 @@ from src.core.notifications import send_discord_alert
 
 # --- ENDPOINTS ---
 
+api_key_header = APIKeyHeader(name="X-API-Key", auto_error=False)
+
+def get_api_key(api_key: str = Security(api_key_header)):
+    if api_key == os.getenv("ENTERPRISE_API_KEY", "chainreflex-default-key"):
+        return api_key
+    raise HTTPException(status_code=403, detail="Zero-Trust Error: Invalid or Missing API Key")
+
+
+@api.websocket("/ws/stream")
+async def websocket_endpoint(websocket: WebSocket):
+    await websocket.accept()
+    last_state = []
+    try:
+        import asyncio
+        while True:
+            current_logs = list(get_logs())
+            if current_logs != last_state:
+                await websocket.send_json(current_logs)
+                last_state = current_logs
+            await asyncio.sleep(0.2)
+    except WebSocketDisconnect:
+        pass
+
 
 @api.post("/api/trigger-response")
-async def trigger_autonomous_response(signal: IngestSignal):
+async def trigger_autonomous_response(signal: IngestSignal, api_key: str = Security(get_api_key)):
     """
     Triggers the Multi-Agent Scout Swarm for Intelligence Gathering.
     """
@@ -69,7 +93,7 @@ async def trigger_autonomous_response(signal: IngestSignal):
 
 @api.post("/api/remediate")
 async def receive_vulnerability_alert(
-    alert: VulnerabilityAlert, background_tasks: BackgroundTasks
+    alert: VulnerabilityAlert, background_tasks: BackgroundTasks, api_key: str = Security(get_api_key)
 ):
     """
     Triggers the GitOps Autonomous Remediation Pipeline.
