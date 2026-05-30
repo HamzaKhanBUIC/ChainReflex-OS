@@ -58,7 +58,7 @@ ChainReflex-OS is built with a **Zero-Trust first** mindset.
 
 ---
 
-## 🚀 Quick Start (3-Step Boot)
+## 🚀 Quick Start (Local Docker)
 
 Deploying ChainReflex-OS is streamlined for modern environments. The orchestrator encompasses the core Python engine and two frontends located in the `clients/` directory.
 
@@ -81,6 +81,33 @@ Using Docker Compose, spin up the unified stack (Gateway, Web App, Admin Dashboa
 docker-compose -f deploy/docker-compose.yml up --build -d
 ```
 The OS Engine will be available on `localhost:8000`, the Web App on `3000`, and the Admin Dashboard on `8501`.
+
+---
+
+## ☁️ Live Production Cloud Deployment (100% Free, No Credit Card)
+
+We have configured Infrastructure-as-Code for an entirely free, multi-platform cloud stack without needing a credit card.
+
+### 1. The Core Engine (Render)
+1. Go to [Render.com](https://render.com) and sign in with GitHub.
+2. Click **New +** -> **Web Service**.
+3. Connect your GitHub repository. The `render.yaml` file will automatically configure the Python FastAPI backend.
+4. Set your `HF_TOKEN` in the Environment Variables tab.
+5. Deploy. You will receive a URL like `https://chainreflex-core.onrender.com`.
+
+### 2. The Web App Frontend (Vercel)
+1. Go to [Vercel.com](https://vercel.com) and sign in with GitHub.
+2. Click **Add New** -> **Project** and select this repository.
+3. The `vercel.json` file automatically configures the monorepo build path (`clients/web-app`).
+4. In the Environment Variables section, add:
+   - `NEXT_PUBLIC_API_URL` = `[YOUR_RENDER_URL]`
+5. Deploy.
+
+### 3. The Admin Dashboard (Streamlit Community Cloud)
+1. Go to [Streamlit Share](https://share.streamlit.io/) and log in with GitHub.
+2. Click **New App**.
+3. Set the repository, and set the **Main file path** to `clients/admin-dashboard/soc_dashboard.py`.
+4. Deploy. Once live, enter your Render URL into the sidebar configuration.
 
 ---
 
