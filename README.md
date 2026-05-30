@@ -98,7 +98,7 @@ We have configured Infrastructure-as-Code for an entirely free, multi-platform c
 ### 2. The Web App Frontend (Vercel)
 1. Go to [Vercel.com](https://vercel.com) and sign in with GitHub.
 2. Click **Add New** -> **Project** and select this repository.
-3. The `vercel.json` file automatically configures the monorepo build path (`clients/web-app`).
+3. **CRITICAL STEP**: Click `Edit` on the **Root Directory** setting and select `clients/web-app`. (This tells Vercel where the Next.js app lives).
 4. In the Environment Variables section, add:
    - `NEXT_PUBLIC_API_URL` = `[YOUR_RENDER_URL]`
 5. Deploy.
