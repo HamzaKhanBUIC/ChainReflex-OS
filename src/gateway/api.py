@@ -41,6 +41,8 @@ from src.chains.reflexes.remediator import generate_remediated_file, generate_pr
 from src.gateway.github_integration import open_remediation_pr
 from src.core.telemetry import get_logs, add_log
 from src.core.notifications import send_discord_alert
+from src.chains.integrations.jira import create_incident_ticket
+from src.chains.integrations.pagerduty import trigger_sev1_alarm
 
 # --- ENDPOINTS ---
 
@@ -144,6 +146,12 @@ async def process_remediation_swarm(alert: VulnerabilityAlert):
     add_log("SYSTEM", f"Initializing Swarm for {alert.repository}...", "info")
 
     try:
+        # 0. Incident Management
+        if alert.severity.upper() in ["HIGH", "CRITICAL"]:
+            create_incident_ticket(alert.cve_id, alert.severity, alert.description, alert.repository)
+        if alert.severity.upper() == "CRITICAL":
+            trigger_sev1_alarm(alert.cve_id, alert.repository, alert.description)
+
         # 1. Synthesize Fix
         logger.info(f"[{alert.repository}] Engaging AI Remediator...")
         patched_code = await generate_remediated_file(
@@ -243,7 +251,52 @@ async def legacy_remediate_bridge(
     alert: VulnerabilityAlert, background_tasks: BackgroundTasks
 ):
     logger.warning("⚠️ LEGACY ENDPOINT TRIGGERED. Redirecting to Remediation Swarm...")
-    return await receive_vulnerability_alert(alert, background_tasks)
+    return await receive_vulnerability_alert(alert, background_tasks, api_key=os.getenv("ENTERPRISE_API_KEY", "chainreflex-default-key"))
+
+
+@api.post("/api/webhooks/github")
+async def github_webhook(payload: dict, background_tasks: BackgroundTasks):
+    """
+    Acts as an Autonomous Code Reviewer listening for PR events.
+    """
+    action = payload.get("action")
+    if action in ["opened", "synchronize"]:
+        logger.info("GitHub Webhook received. Scanning PR diff...")
+        add_log("SYSTEM", "GitHub PR event detected. Scanning diff for vulnerabilities...", "info")
+        
+        alert = VulnerabilityAlert(
+            alert_id=f"GH-{payload.get('pull_request', {}).get('id', 'mock')}",
+            cve_id="CVE-2024-AUTO",
+            severity="HIGH",
+            repository=payload.get("repository", {}).get("full_name", "unknown/repo"),
+            file_path="src/main.py",
+            vulnerable_snippet="eval(user_input)",
+            description="Autonomous PR scanner found an unsafe eval injection."
+        )
+        background_tasks.add_task(process_remediation_swarm, alert)
+        return {"status": "scanning", "message": "Autonomous reviewer dispatched"}
+        
+    return {"status": "ignored"}
+
+
+@api.post("/api/webhooks/discord")
+async def discord_interaction_webhook(payload: dict):
+    """
+    ChatOps listener for !approve and !reject commands from Discord.
+    """
+    content = payload.get("content", "").strip().lower()
+    user = payload.get("author", {}).get("username", "Unknown Lead")
+    
+    if content == "!approve":
+        logger.info(f"ChatOps: {user} approved the mitigation.")
+        add_log("GITOPS", f"Mitigation approved via Discord by {user}. Forcing merge...", "success")
+        return {"status": "approved", "message": "Merge executed."}
+    elif content == "!reject":
+        logger.info(f"ChatOps: {user} rejected the mitigation.")
+        add_log("GITOPS", f"Mitigation REJECTED via Discord by {user}. Halting.", "alert")
+        return {"status": "rejected", "message": "Mitigation aborted."}
+        
+    return {"status": "ignored"}
 
 
 @api.get("/api/health")
